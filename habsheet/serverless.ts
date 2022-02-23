@@ -26,6 +26,11 @@ const serverlessConfiguration: AWS = {
           Action: ['dynamodb:PutItem', 'dynamodb:Query'],
           Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/habsheet-users`,
         },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/habsheet-users/index/emailIndex`,
+        },
       ],
       events: [
         {
