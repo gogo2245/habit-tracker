@@ -3,7 +3,7 @@ import type {AWS} from '@serverless/typescript'
 const serverlessConfiguration: AWS = {
   service: 'habsheet',
   frameworkVersion: '2',
-  plugins: ['serverless-esbuild', 'serverless-offline'],
+  plugins: ['serverless-esbuild', 'serverless-offline', 'serverless-iam-roles-per-function'],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -16,13 +16,22 @@ const serverlessConfiguration: AWS = {
     lambdaHashingVersion: '20201221',
   },
   functions: {
-    hello: {
-      handler: 'src/handlers/hello.handler',
+    register: {
+      handler: 'src/handlers/register.handler',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:PutItem', 'dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/habsheet-users`,
+        },
+      ],
       events: [
         {
           httpApi: {
-            method: 'get',
-            path: '/hello/{name}',
+            method: 'post',
+            path: '/v1/auth/register',
           },
         },
       ],
@@ -39,6 +48,53 @@ const serverlessConfiguration: AWS = {
       define: {'require.resolve': undefined},
       platform: 'node',
       concurrency: 10,
+    },
+  },
+  resources: {
+    Resources: {
+      DDBUsersTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: 'habsheet-users',
+          AttributeDefinitions: [
+            {
+              AttributeName: 'pk',
+              AttributeType: 'S',
+            },
+            {
+              AttributeName: 'email',
+              AttributeType: 'S',
+            },
+          ],
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: 'emailIndex',
+              KeySchema: [
+                {
+                  AttributeName: 'email',
+                  KeyType: 'HASH',
+                },
+              ],
+              Projection: {
+                ProjectionType: 'KEYS_ONLY',
+              },
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'pk',
+              KeyType: 'HASH',
+            },
+          ],
+          BillingMode: 'PAY_PER_REQUEST',
+          Tags: [
+            {
+              Key: 'BackupPlan',
+              Value: 'Standard',
+            },
+          ],
+        },
+      },
     },
   },
 }
