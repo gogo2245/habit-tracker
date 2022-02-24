@@ -17,3 +17,12 @@ export const registerRequestSchema = yup
       .required({password: 'IsRequired'})
       .typeError({password: 'IsRequired'}),
   })
+
+export const loginRequestSchema = yup
+  .object()
+  .required({general: 'RequestBodyIsRequired'})
+  .typeError({general: 'RequestBodyIsRequired'})
+  .shape({
+    email: yup.string().required({email: 'IsRequired'}).typeError({email: 'IsRequired'}),
+    password: yup.string().required({password: 'IsRequired'}).typeError({password: 'IsRequired'}),
+  })

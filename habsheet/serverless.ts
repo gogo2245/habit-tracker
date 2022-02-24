@@ -1,5 +1,8 @@
 import type {AWS} from '@serverless/typescript'
 
+const UsersTableName = 'habsheet-users'
+const SecretKeySignPath = 'login-private-key'
+
 const serverlessConfiguration: AWS = {
   service: 'habsheet',
   frameworkVersion: '2',
@@ -41,6 +44,50 @@ const serverlessConfiguration: AWS = {
         },
       ],
     },
+    login: {
+      handler: 'src/handlers/login.handler',
+      environment: {
+        SecretKeySignPath,
+        UsersTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:GetItem', 'dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/habsheet-users`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/habsheet-users/index/emailIndex`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/auth/login',
+          },
+        },
+      ],
+    },
   },
   package: {individually: true},
   custom: {
@@ -60,7 +107,7 @@ const serverlessConfiguration: AWS = {
       DDBUsersTable: {
         Type: 'AWS::DynamoDB::Table',
         Properties: {
-          TableName: 'habsheet-users',
+          TableName: UsersTableName,
           AttributeDefinitions: [
             {
               AttributeName: 'pk',
@@ -81,7 +128,7 @@ const serverlessConfiguration: AWS = {
                 },
               ],
               Projection: {
-                ProjectionType: 'KEYS_ONLY',
+                ProjectionType: 'ALL',
               },
             },
           ],

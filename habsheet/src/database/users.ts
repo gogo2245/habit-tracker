@@ -1,12 +1,10 @@
 import {DynamoDB} from 'aws-sdk'
 import * as uuid from 'uuid'
-import {hashSync} from 'bcryptjs'
+import {hashSync, compareSync} from 'bcryptjs'
 
 import {DatabaseUser} from 'src/types/users'
 
 const ddb = new DynamoDB.DocumentClient()
-
-const TableName = 'habsheet-users'
 
 const returnIfOneOrZero = <Item>(items: Item[]): Item | undefined => {
   if (items.length === 1) return items[0]
@@ -17,7 +15,7 @@ const returnIfOneOrZero = <Item>(items: Item[]): Item | undefined => {
 export const createUser = async (email: string, username: string, password: string): Promise<unknown> =>
   ddb
     .put({
-      TableName,
+      TableName: process.env.UsersTableName,
       Item: {
         pk: uuid.v4(),
         email,
@@ -27,10 +25,10 @@ export const createUser = async (email: string, username: string, password: stri
     })
     .promise()
 
-const getUserPKByEmail = async (email: string): Promise<Omit<DatabaseUser, 'username' | 'password'> | undefined> => {
+const getUserPKByEmail = async (email: string): Promise<Omit<DatabaseUser, 'username'> | undefined> => {
   const user = await ddb
     .query({
-      TableName,
+      TableName: process.env.UsersTableName,
       IndexName: 'emailIndex',
       KeyConditionExpression: 'email=:email',
       ExpressionAttributeValues: {
@@ -38,7 +36,13 @@ const getUserPKByEmail = async (email: string): Promise<Omit<DatabaseUser, 'user
       },
     })
     .promise()
-  return returnIfOneOrZero(user.Items) as Omit<DatabaseUser, 'username' | 'password'>
+  return returnIfOneOrZero(user.Items) as Omit<DatabaseUser, 'username'>
 }
 
 export const isEmailAlreadyUsed = async (email: string): Promise<boolean> => !!(await getUserPKByEmail(email))
+
+export const checkCredentials = async (email: string, password: string): Promise<string | undefined> => {
+  const user = await getUserPKByEmail(email)
+  if (!user || !compareSync(password, user.password)) return undefined
+  return user.pk
+}

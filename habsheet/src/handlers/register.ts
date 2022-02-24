@@ -2,7 +2,7 @@ import {APIGatewayProxyEventV2, APIGatewayProxyResultV2} from 'aws-lambda'
 
 import {DatabaseUser} from '../types/users'
 import {createUser, isEmailAlreadyUsed} from '../database/users'
-import {registerRequestSchema} from '../validation/users'
+import {registerRequestSchema} from '../validation/auth'
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   let body: Omit<DatabaseUser, 'pk'>
