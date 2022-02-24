@@ -88,6 +88,39 @@ const serverlessConfiguration: AWS = {
         },
       ],
     },
+    refresh: {
+      handler: 'src/handlers/refresh.handler',
+      environment: {
+        SecretKeySignPath,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/auth/refresh',
+          },
+        },
+      ],
+    },
   },
   package: {individually: true},
   custom: {

@@ -29,9 +29,9 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
       statusCode: 400,
     }
   }
-  const response = await generateTokens(pk, ssm)
+  const tokens = await generateTokens(pk, ssm)
   return {
     statusCode: 200,
-    body: JSON.stringify(response),
+    body: JSON.stringify({...tokens, message: 'LoginSuccessfull'}),
   }
 }
