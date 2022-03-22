@@ -1,13 +1,25 @@
 import {APIGatewayProxyEventV2, APIGatewayProxyResultV2} from 'aws-lambda'
 import {SSM} from 'aws-sdk'
-import * as _ from 'lodash'
+import {RefreshTokenRequest} from 'src/types/auth'
 import {validateAndRefreshTokens} from 'src/utils/token'
+import {refreshTokenRequestSchema} from 'src/validation/auth'
 
 const ssm = new SSM()
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-  const [, token] = _.split(event.headers.Authorization || event.headers.authorization, ' ')
-  const tokens = await validateAndRefreshTokens(token, ssm)
+  let body: RefreshTokenRequest
+  try {
+    body = refreshTokenRequestSchema.validateSync(event.body, {abortEarly: false})
+  } catch (e) {
+    return {
+      body: JSON.stringify({
+        message: 'ValidationError',
+        errorCodes: e.errors,
+      }),
+      statusCode: 400,
+    }
+  }
+  const tokens = await validateAndRefreshTokens(body.refreshToken, ssm)
   if (!tokens)
     return {
       statusCode: 400,

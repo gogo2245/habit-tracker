@@ -21,6 +21,9 @@ const serverlessConfiguration: AWS = {
   functions: {
     register: {
       handler: 'src/handlers/register.handler',
+      environment: {
+        UsersTableName,
+      },
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       iamRoleStatements: [
@@ -117,6 +120,62 @@ const serverlessConfiguration: AWS = {
           httpApi: {
             method: 'post',
             path: '/v1/auth/refresh',
+          },
+        },
+      ],
+    },
+    updatePassword: {
+      handler: 'src/handlers/updatePassword.handler',
+      environment: {
+        SecretKeySignPath,
+        UsersTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/habsheet-users`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:UpdateItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/habsheet-users`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/auth/password/update',
+          },
+        },
+        {
+          httpApi: {
+            method: 'patch',
+            path: '/v1/auth/password/update',
+          },
+        },
+        {
+          httpApi: {
+            method: 'put',
+            path: '/v1/auth/password/update',
           },
         },
       ],

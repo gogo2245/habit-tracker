@@ -1,6 +1,7 @@
 import {SSM} from 'aws-sdk'
+import * as _ from 'lodash'
 import * as jwt from 'jsonwebtoken'
-import {TokenResponse} from 'src/types/token'
+import {TokenError, TokenResponse, UserInfo} from 'src/types/auth'
 import {getSecret} from './secret'
 
 export const generateTokens = async (pk: string, ssm: SSM): Promise<TokenResponse> => {
@@ -8,6 +9,39 @@ export const generateTokens = async (pk: string, ssm: SSM): Promise<TokenRespons
   const accessToken = jwt.sign({pk, type: 'accessToken'}, secret, {expiresIn: '1h', algorithm: 'RS256'})
   const refreshToken = jwt.sign({pk, type: 'refreshToken'}, secret, {expiresIn: '1w', algorithm: 'RS256'})
   return {accessToken, refreshToken}
+}
+
+export const isTokenError = (obj: unknown): obj is TokenError =>
+  obj && (obj as TokenError).errorMessage !== undefined && typeof (obj as TokenError).errorMessage === 'string'
+
+export const validateToken = async (headers: Record<string, string>, ssm: SSM): Promise<UserInfo | TokenError> => {
+  try {
+    const [, token] = _.split(headers.Authorization || headers.authorization, ' ')
+    const decoded = jwt.decode(token, {complete: true})
+    if (!decoded || typeof decoded === 'string')
+      return {
+        errorMessage: 'InvalidToken',
+      }
+    const secret = await getSecret({ssm, path: process.env.SecretKeySignPath})
+    const verified = jwt.verify(token, secret, {algorithms: ['RS256']})
+    if (!verified || typeof verified === 'string')
+      return {
+        errorMessage: 'InvalidToken',
+      }
+    if (verified.type !== 'accessToken')
+      return {
+        errorMessage: 'InvalidToken',
+      }
+    return {pk: verified.pk}
+  } catch (e) {
+    if (e.name === 'TokenExpiredError')
+      return {
+        errorMessage: 'TokenExpired',
+      }
+    return {
+      errorMessage: 'InvalidToken',
+    }
+  }
 }
 
 export const validateAndRefreshTokens = async (refreshToken: string, ssm: SSM): Promise<TokenResponse | undefined> => {

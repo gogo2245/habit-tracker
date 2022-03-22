@@ -26,3 +26,24 @@ export const loginRequestSchema = yup
     email: yup.string().required({email: 'IsRequired'}).typeError({email: 'IsRequired'}),
     password: yup.string().required({password: 'IsRequired'}).typeError({password: 'IsRequired'}),
   })
+
+export const updatePasswordRequestSchema = yup
+  .object()
+  .required({general: 'RequestBodyIsRequired'})
+  .typeError({general: 'RequestBodyIsRequired'})
+  .shape({
+    oldPassword: yup.string().required({oldPassword: 'IsRequired'}).typeError({oldPassword: 'IsRequired'}),
+    newPassword: yup
+      .string()
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {message: {newPassword: 'NotValid'}})
+      .required({newPassword: 'IsRequired'})
+      .typeError({newPassword: 'IsRequired'}),
+  })
+
+export const refreshTokenRequestSchema = yup
+  .object()
+  .required({general: 'RequestBodyIsRequired'})
+  .typeError({general: 'RequestBodyIsRequired'})
+  .shape({
+    refreshToken: yup.string().required({refreshToken: 'IsRequired'}).typeError({refreshToken: 'IsRequired'}),
+  })

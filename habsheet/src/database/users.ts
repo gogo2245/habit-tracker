@@ -25,7 +25,7 @@ export const createUser = async (email: string, username: string, password: stri
     })
     .promise()
 
-const getUserPKByEmail = async (email: string): Promise<Omit<DatabaseUser, 'username'> | undefined> => {
+const getUserByEmail = async (email: string): Promise<DatabaseUser | undefined> => {
   const user = await ddb
     .query({
       TableName: process.env.UsersTableName,
@@ -36,13 +36,40 @@ const getUserPKByEmail = async (email: string): Promise<Omit<DatabaseUser, 'user
       },
     })
     .promise()
-  return returnIfOneOrZero(user.Items) as Omit<DatabaseUser, 'username'>
+  return returnIfOneOrZero(user.Items) as DatabaseUser | undefined
 }
 
-export const isEmailAlreadyUsed = async (email: string): Promise<boolean> => !!(await getUserPKByEmail(email))
+const getUserByPK = async (pk: string): Promise<DatabaseUser | undefined> => {
+  const user = await ddb
+    .get({
+      TableName: process.env.UsersTableName,
+      Key: {pk},
+    })
+    .promise()
+  return user.Item as DatabaseUser | undefined
+}
 
-export const checkCredentials = async (email: string, password: string): Promise<string | undefined> => {
-  const user = await getUserPKByEmail(email)
+export const isEmailAlreadyUsed = async (email: string): Promise<boolean> => !!(await getUserByEmail(email))
+
+export const checkCredentialsByEmail = async (email: string, password: string): Promise<string | undefined> => {
+  const user = await getUserByEmail(email)
   if (!user || !compareSync(password, user.password)) return undefined
   return user.pk
 }
+
+export const checkCredentialsByPK = async (pk: string, password: string): Promise<boolean> => {
+  const user = await getUserByPK(pk)
+  return user && compareSync(password, user.password)
+}
+
+export const changeUserPassword = (pk: string, newPassword: string): Promise<unknown> =>
+  ddb
+    .update({
+      TableName: process.env.UsersTableName,
+      Key: {pk},
+      UpdateExpression: 'SET password=:password',
+      ExpressionAttributeValues: {
+        ':password': hashSync(newPassword),
+      },
+    })
+    .promise()
