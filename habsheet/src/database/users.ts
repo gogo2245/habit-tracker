@@ -2,7 +2,7 @@ import {DynamoDB} from 'aws-sdk'
 import * as uuid from 'uuid'
 import {hashSync, compareSync} from 'bcryptjs'
 
-import {DatabaseUser} from 'src/types/users'
+import {DatabaseUser} from 'src/types/database'
 
 const ddb = new DynamoDB.DocumentClient()
 

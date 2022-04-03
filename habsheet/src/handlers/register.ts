@@ -1,6 +1,6 @@
 import {APIGatewayProxyEventV2, APIGatewayProxyResultV2} from 'aws-lambda'
 
-import {DatabaseUser} from '../types/users'
+import {DatabaseUser} from '../types/database'
 import {createUser, isEmailAlreadyUsed} from '../database/users'
 import {registerRequestSchema} from '../validation/auth'
 

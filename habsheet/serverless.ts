@@ -1,6 +1,8 @@
 import type {AWS} from '@serverless/typescript'
 
 const UsersTableName = 'habsheet-users'
+const GroupsTableName = 'habsheet-groups'
+const GroupsUsersTableName = 'habsheet-groups-users'
 const SecretKeySignPath = 'login-private-key'
 
 const serverlessConfiguration: AWS = {
@@ -180,6 +182,101 @@ const serverlessConfiguration: AWS = {
         },
       ],
     },
+    createGroup: {
+      handler: 'src/handlers/createGroup.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsTableName,
+        GroupsUsersTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:PutItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:PutItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/groups/create',
+          },
+        },
+      ],
+    },
+    listGroups: {
+      handler: 'src/handlers/listGroups.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsTableName,
+        GroupsUsersTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:GetItem', 'dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}/index/userIDIndex`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'get',
+            path: '/v1/groups',
+          },
+        },
+      ],
+    },
   },
   package: {individually: true},
   custom: {
@@ -227,6 +324,74 @@ const serverlessConfiguration: AWS = {
           KeySchema: [
             {
               AttributeName: 'id',
+              KeyType: 'HASH',
+            },
+          ],
+          BillingMode: 'PAY_PER_REQUEST',
+          Tags: [
+            {
+              Key: 'BackupPlan',
+              Value: 'Standard',
+            },
+          ],
+        },
+      },
+      DDBGroupTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: GroupsTableName,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'id',
+              AttributeType: 'S',
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'id',
+              KeyType: 'HASH',
+            },
+          ],
+          BillingMode: 'PAY_PER_REQUEST',
+          Tags: [
+            {
+              Key: 'BackupPlan',
+              Value: 'Standard',
+            },
+          ],
+        },
+      },
+      DDBGroupsUsersTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: GroupsUsersTableName,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'groupID',
+              AttributeType: 'S',
+            },
+            {
+              AttributeName: 'userID',
+              AttributeType: 'S',
+            },
+          ],
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: 'userIDIndex',
+              KeySchema: [
+                {
+                  AttributeName: 'userID',
+                  KeyType: 'HASH',
+                },
+              ],
+              Projection: {
+                ProjectionType: 'ALL',
+              },
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'groupID',
               KeyType: 'HASH',
             },
           ],
