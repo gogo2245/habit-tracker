@@ -17,7 +17,7 @@ export const createUser = async (email: string, username: string, password: stri
     .put({
       TableName: process.env.UsersTableName,
       Item: {
-        pk: uuid.v4(),
+        id: uuid.v4(),
         email,
         username,
         password: hashSync(password, 10),
@@ -39,11 +39,11 @@ const getUserByEmail = async (email: string): Promise<DatabaseUser | undefined> 
   return returnIfOneOrZero(user.Items) as DatabaseUser | undefined
 }
 
-const getUserByPK = async (pk: string): Promise<DatabaseUser | undefined> => {
+const getUserByID = async (id: string): Promise<DatabaseUser | undefined> => {
   const user = await ddb
     .get({
       TableName: process.env.UsersTableName,
-      Key: {pk},
+      Key: {id},
     })
     .promise()
   return user.Item as DatabaseUser | undefined
@@ -54,19 +54,19 @@ export const isEmailAlreadyUsed = async (email: string): Promise<boolean> => !!(
 export const checkCredentialsByEmail = async (email: string, password: string): Promise<string | undefined> => {
   const user = await getUserByEmail(email)
   if (!user || !compareSync(password, user.password)) return undefined
-  return user.pk
+  return user.id
 }
 
-export const checkCredentialsByPK = async (pk: string, password: string): Promise<boolean> => {
-  const user = await getUserByPK(pk)
+export const checkCredentialsByID = async (id: string, password: string): Promise<boolean> => {
+  const user = await getUserByID(id)
   return user && compareSync(password, user.password)
 }
 
-export const changeUserPassword = (pk: string, newPassword: string): Promise<unknown> =>
+export const changeUserPassword = (id: string, newPassword: string): Promise<unknown> =>
   ddb
     .update({
       TableName: process.env.UsersTableName,
-      Key: {pk},
+      Key: {id},
       UpdateExpression: 'SET password=:password',
       ExpressionAttributeValues: {
         ':password': hashSync(newPassword),

@@ -20,8 +20,8 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     }
   }
   const {email, password} = body
-  const pk = await checkCredentialsByEmail(email, password)
-  if (!pk) {
+  const id = await checkCredentialsByEmail(email, password)
+  if (!id) {
     return {
       body: JSON.stringify({
         message: 'CredentialsNotCorrect',
@@ -29,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
       statusCode: 400,
     }
   }
-  const tokens = await generateTokens(pk, ssm)
+  const tokens = await generateTokens(id, ssm)
   return {
     statusCode: 200,
     body: JSON.stringify({...tokens, message: 'LoginSuccessful'}),

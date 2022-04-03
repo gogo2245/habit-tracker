@@ -4,10 +4,10 @@ import * as jwt from 'jsonwebtoken'
 import {TokenError, TokenResponse, UserInfo} from 'src/types/auth'
 import {getSecret} from './secret'
 
-export const generateTokens = async (pk: string, ssm: SSM): Promise<TokenResponse> => {
+export const generateTokens = async (id: string, ssm: SSM): Promise<TokenResponse> => {
   const secret = await getSecret({ssm, path: process.env.SecretKeySignPath})
-  const accessToken = jwt.sign({pk, type: 'accessToken'}, secret, {expiresIn: '1h', algorithm: 'RS256'})
-  const refreshToken = jwt.sign({pk, type: 'refreshToken'}, secret, {expiresIn: '1w', algorithm: 'RS256'})
+  const accessToken = jwt.sign({id, type: 'accessToken'}, secret, {expiresIn: '1h', algorithm: 'RS256'})
+  const refreshToken = jwt.sign({id, type: 'refreshToken'}, secret, {expiresIn: '1w', algorithm: 'RS256'})
   return {accessToken, refreshToken}
 }
 
@@ -32,7 +32,7 @@ export const validateToken = async (headers: Record<string, string>, ssm: SSM): 
       return {
         errorMessage: 'InvalidToken',
       }
-    return {pk: verified.pk}
+    return {id: verified.id}
   } catch (e) {
     if (e.name === 'TokenExpiredError')
       return {
@@ -52,7 +52,7 @@ export const validateAndRefreshTokens = async (refreshToken: string, ssm: SSM): 
     const verified = jwt.verify(refreshToken, secret, {algorithms: ['RS256']})
     if (!verified || typeof verified === 'string') return
     if (verified.type !== 'refreshToken') return
-    return generateTokens(verified.pk, ssm)
+    return generateTokens(verified.id, ssm)
   } catch (e) {
     return
   }

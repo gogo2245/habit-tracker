@@ -13,7 +13,9 @@ export const registerRequestSchema = yup
     email: yup.string().required({email: 'IsRequired'}).email({email: 'MustBeEmail'}).typeError({email: 'IsRequired'}),
     password: yup
       .string()
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {message: {password: 'NotValid'}})
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$! %*?&]{8,25}$/, {
+        message: {password: 'NotValid'},
+      })
       .required({password: 'IsRequired'})
       .typeError({password: 'IsRequired'}),
   })
@@ -35,7 +37,9 @@ export const updatePasswordRequestSchema = yup
     oldPassword: yup.string().required({oldPassword: 'IsRequired'}).typeError({oldPassword: 'IsRequired'}),
     newPassword: yup
       .string()
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {message: {newPassword: 'NotValid'}})
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$! %*?&]{8,25}$/, {
+        message: {newPassword: 'NotValid'},
+      })
       .required({newPassword: 'IsRequired'})
       .typeError({newPassword: 'IsRequired'}),
   })

@@ -4,7 +4,7 @@ import {SSM} from 'aws-sdk'
 import {isTokenError, validateToken} from 'src/utils/token'
 import {UpdatePasswordRequest} from 'src/types/auth'
 import {updatePasswordRequestSchema} from 'src/validation/auth'
-import {changeUserPassword, checkCredentialsByPK} from 'src/database/users'
+import {changeUserPassword, checkCredentialsByID} from 'src/database/users'
 
 const ssm = new SSM()
 
@@ -29,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
       statusCode: 400,
     }
   }
-  if (!(await checkCredentialsByPK(userInfo.pk, body.oldPassword))) {
+  if (!(await checkCredentialsByID(userInfo.id, body.oldPassword))) {
     return {
       body: JSON.stringify({
         message: 'CredentialsNotCorrect',
@@ -37,6 +37,6 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
       statusCode: 400,
     }
   }
-  await changeUserPassword(userInfo.pk, body.newPassword)
+  await changeUserPassword(userInfo.id, body.newPassword)
   return {statusCode: 200, body: JSON.stringify({message: 'PasswordUpdated'})}
 }

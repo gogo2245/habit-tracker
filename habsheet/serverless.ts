@@ -202,7 +202,7 @@ const serverlessConfiguration: AWS = {
           TableName: UsersTableName,
           AttributeDefinitions: [
             {
-              AttributeName: 'pk',
+              AttributeName: 'id',
               AttributeType: 'S',
             },
             {
@@ -226,7 +226,7 @@ const serverlessConfiguration: AWS = {
           ],
           KeySchema: [
             {
-              AttributeName: 'pk',
+              AttributeName: 'id',
               KeyType: 'HASH',
             },
           ],

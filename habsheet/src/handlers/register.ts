@@ -5,7 +5,7 @@ import {createUser, isEmailAlreadyUsed} from '../database/users'
 import {registerRequestSchema} from '../validation/auth'
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-  let body: Omit<DatabaseUser, 'pk'>
+  let body: Omit<DatabaseUser, 'id'>
   try {
     body = registerRequestSchema.validateSync(event.body, {abortEarly: false})
   } catch (e) {

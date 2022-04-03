@@ -1,5 +1,5 @@
 export type DatabaseUser = {
-  pk: string
+  id: string
   email: string
   username: string
   password: string

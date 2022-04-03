@@ -12,4 +12,4 @@ export type RefreshTokenRequest = yup.InferType<typeof refreshTokenRequestSchema
 
 export type TokenError = {errorMessage: string}
 
-export type UserInfo = {pk: string}
+export type UserInfo = {id: string}
