@@ -277,6 +277,129 @@ const serverlessConfiguration: AWS = {
         },
       ],
     },
+    InviteMemberToGroup: {
+      handler: 'src/handlers/inviteMember.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsUsersTableName,
+        UsersTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:PutItem', 'dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${UsersTableName}/index/emailIndex`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/groups/invite',
+          },
+        },
+      ],
+    },
+    AcceptInvitation: {
+      handler: 'src/handlers/acceptInvitation.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsUsersTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:UpdateItem', 'dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/groups/{groupID}/invite/accept',
+          },
+        },
+      ],
+    },
+    LeaveGroup: {
+      handler: 'src/handlers/leaveGroup.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsUsersTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:DeleteItem', 'dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/groups/{groupID}/leave',
+          },
+        },
+      ],
+    },
   },
   package: {individually: true},
   custom: {
@@ -383,6 +506,10 @@ const serverlessConfiguration: AWS = {
                   AttributeName: 'userID',
                   KeyType: 'HASH',
                 },
+                {
+                  AttributeName: 'groupID',
+                  KeyType: 'RANGE',
+                },
               ],
               Projection: {
                 ProjectionType: 'ALL',
@@ -393,6 +520,10 @@ const serverlessConfiguration: AWS = {
             {
               AttributeName: 'groupID',
               KeyType: 'HASH',
+            },
+            {
+              AttributeName: 'userID',
+              KeyType: 'RANGE',
             },
           ],
           BillingMode: 'PAY_PER_REQUEST',

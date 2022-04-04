@@ -25,7 +25,7 @@ export const createUser = async (email: string, username: string, password: stri
     })
     .promise()
 
-const getUserByEmail = async (email: string): Promise<DatabaseUser | undefined> => {
+export const getUserByEmail = async (email: string): Promise<DatabaseUser | undefined> => {
   const user = await ddb
     .query({
       TableName: process.env.UsersTableName,
