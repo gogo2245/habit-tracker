@@ -1,3 +1,4 @@
+import {GroupRole} from 'src/types/database'
 import * as yup from 'yup'
 
 export const createGroupRequestSchema = yup
@@ -26,7 +27,11 @@ export const manageGroupUserRequestSchema = yup
     userID: yup.string().required({userID: 'IsRequired'}).typeError({userID: 'IsRequired'}),
     role: yup
       .number()
-      .test('role', {role: 'ValueNotAllowed'}, (item) => item === -1 || item === 1 || item === 3)
+      .test(
+        'role',
+        {role: 'ValueNotAllowed'},
+        (item) => item === GroupRole.habitManager || item === GroupRole.member || item === 3,
+      )
       .required({role: 'IsRequired'})
       .typeError({role: 'IsRequired'}),
   })

@@ -14,8 +14,8 @@ export type DatabaseGroup = {
 export enum GroupRole {
   invited = 0,
   member = 1,
-  owner,
   habitManager,
+  owner,
 }
 
 export type DatabaseGroupUser = {
