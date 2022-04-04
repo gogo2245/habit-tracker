@@ -484,6 +484,57 @@ const serverlessConfiguration: AWS = {
         },
       ],
     },
+    DeleteGroup: {
+      handler: 'src/handlers/deleteGroup.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsUsersTableName,
+        UsersTableName,
+        GroupsTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:Query', 'dynamodb:GetItem', 'dynamodb:DeleteItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${UsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:DeleteItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'delete',
+            path: '/v1/groups/{groupID}',
+          },
+        },
+      ],
+    },
   },
   package: {individually: true},
   custom: {

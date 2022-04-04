@@ -153,3 +153,12 @@ export const changeUserRole = async (userID: string, groupID: string, role: Grou
 export const leaveGroup = async (userID: string, groupID: string): Promise<void> => {
   await ddb.delete({TableName: process.env.GroupsUsersTableName, Key: {userID, groupID}}).promise()
 }
+
+export const deleteGroup = async (groupID: string): Promise<void> => {
+  // TODO remove all habits from group
+  const users = await listUsersByGroupID(groupID)
+  for (const user of users) {
+    await leaveGroup(user.id, groupID)
+  }
+  await ddb.delete({Key: {id: groupID}, TableName: process.env.GroupsTableName}).promise()
+}
