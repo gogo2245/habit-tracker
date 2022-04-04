@@ -93,7 +93,9 @@ export const inviteMemberToGroup = async (userID: string, groupID: string): Prom
     .promise()
 }
 
-export const listUsersByGroupID = async (groupID: string): Promise<(DatabaseUser & {role: GroupRole})[]> => {
+export const listUsersByGroupID = async (
+  groupID: string,
+): Promise<(Omit<DatabaseUser, 'password'> & {role: GroupRole})[]> => {
   const {Items: users} = await ddb
     .query({
       TableName: process.env.GroupsUsersTableName,
@@ -103,19 +105,25 @@ export const listUsersByGroupID = async (groupID: string): Promise<(DatabaseUser
       },
     })
     .promise()
-  return Promise.all(
-    _.map(users, async ({userID, role}: DatabaseGroupUser) => ({
-      ...((
-        await ddb
-          .get({
-            TableName: process.env.UsersTableName,
-            Key: {id: userID},
-          })
-          .promise()
-      ).Item as DatabaseUser),
-      role,
-    })),
+  const databaseUsers = await Promise.all(
+    _.map(users, async ({userID, role}: DatabaseGroupUser) =>
+      role !== GroupRole.invited
+        ? {
+            ...((
+              await ddb
+                .get({
+                  TableName: process.env.UsersTableName,
+                  Key: {id: userID},
+                })
+                .promise()
+            ).Item as DatabaseUser),
+            password: undefined,
+            role,
+          }
+        : undefined,
+    ),
   )
+  return _.compact(databaseUsers)
 }
 
 export const acceptInvitationToGroup = async (userID: string, groupID: string): Promise<void> => {
@@ -126,6 +134,18 @@ export const acceptInvitationToGroup = async (userID: string, groupID: string): 
       UpdateExpression: 'set #rl = :role',
       ExpressionAttributeNames: {'#rl': 'role'},
       ExpressionAttributeValues: {':role': GroupRole.member},
+    })
+    .promise()
+}
+
+export const changeUserRole = async (userID: string, groupID: string, role: GroupRole): Promise<void> => {
+  await ddb
+    .update({
+      TableName: process.env.GroupsUsersTableName,
+      Key: {userID, groupID},
+      UpdateExpression: 'set #rl = :role',
+      ExpressionAttributeNames: {'#rl': 'role'},
+      ExpressionAttributeValues: {':role': role},
     })
     .promise()
 }
