@@ -3,8 +3,9 @@ import {APIGatewayProxyEventV2, APIGatewayProxyResultV2} from 'aws-lambda'
 import {DatabaseUser} from '../types/database'
 import {createUser, isEmailAlreadyUsed} from '../database/users'
 import {registerRequestSchema} from '../validation/auth'
+import handlerMiddleware from './handlerMiddleware'
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   let body: Omit<DatabaseUser, 'id'>
   try {
     body = registerRequestSchema.validateSync(event.body, {abortEarly: false})
@@ -34,4 +35,4 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     }),
     statusCode: 200,
   }
-}
+})

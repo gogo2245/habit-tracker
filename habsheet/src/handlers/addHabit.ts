@@ -1,10 +1,11 @@
 import {APIGatewayProxyEventV2, APIGatewayProxyResultV2} from 'aws-lambda'
 import {SSM} from 'aws-sdk'
 
+import {DatabaseHabit} from '../types/database'
 import {isTokenError, validateToken} from 'src/utils/token'
-import {UpdatePasswordRequest} from 'src/types/auth'
-import {updatePasswordRequestSchema} from 'src/validation/auth'
-import {changeUserPassword, checkCredentialsByID} from 'src/database/users'
+import {addHabitRequestSchema} from 'src/validation/habits'
+import {addHabit} from 'src/database/habits'
+import {isUserGroupManager} from 'src/database/groups'
 import handlerMiddleware from './handlerMiddleware'
 
 const ssm = new SSM()
@@ -18,9 +19,9 @@ export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): 
       }),
       statusCode: 401,
     }
-  let body: UpdatePasswordRequest
+  let body: Omit<DatabaseHabit, 'id' | 'createdAt' | 'groupID'>
   try {
-    body = updatePasswordRequestSchema.validateSync(event.body, {abortEarly: false})
+    body = addHabitRequestSchema.validateSync(event.body, {abortEarly: false})
   } catch (e) {
     return {
       body: JSON.stringify({
@@ -30,14 +31,20 @@ export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): 
       statusCode: 400,
     }
   }
-  if (!(await checkCredentialsByID(userInfo.id, body.oldPassword))) {
+  const {groupID} = event.pathParameters
+  if (!(await isUserGroupManager(userInfo.id, groupID)))
     return {
       body: JSON.stringify({
-        message: 'CredentialsNotCorrect',
+        message: 'ValidationError',
+        errorCodes: [{groupID: 'NotAllowed'}],
       }),
-      statusCode: 400,
+      statusCode: 403,
     }
+  await addHabit({...body, groupID})
+  return {
+    body: JSON.stringify({
+      message: 'HabitAdded',
+    }),
+    statusCode: 200,
   }
-  await changeUserPassword(userInfo.id, body.newPassword)
-  return {statusCode: 200, body: JSON.stringify({message: 'PasswordUpdated'})}
 })

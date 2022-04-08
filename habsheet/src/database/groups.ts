@@ -73,6 +73,11 @@ export const isUserGroupOwner = async (userID: string, groupID: string): Promise
   return userGroup && userGroup.role === GroupRole.owner
 }
 
+export const isUserGroupManager = async (userID: string, groupID: string): Promise<boolean> => {
+  const userGroup = await getUserGroup(userID, groupID)
+  return userGroup && userGroup.role >= GroupRole.habitManager
+}
+
 export const isUserGroupInvited = async (userID: string, groupID: string): Promise<boolean> => {
   const userGroup = await getUserGroup(userID, groupID)
   return userGroup && userGroup.role === GroupRole.invited

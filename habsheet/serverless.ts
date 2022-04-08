@@ -3,6 +3,8 @@ import type {AWS} from '@serverless/typescript'
 const UsersTableName = 'habsheet-users'
 const GroupsTableName = 'habsheet-groups'
 const GroupsUsersTableName = 'habsheet-groups-users'
+const HabitsTableName = 'habsheet-habits'
+const HabitInstancesTableName = 'habsheet-habit-instances'
 const SecretKeySignPath = 'login-private-key'
 
 const serverlessConfiguration: AWS = {
@@ -535,6 +537,96 @@ const serverlessConfiguration: AWS = {
         },
       ],
     },
+    AddHabit: {
+      handler: 'src/handlers/addHabit.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsUsersTableName,
+        HabitsTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:PutItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${HabitsTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'post',
+            path: '/v1/groups/{groupID}/habits/add',
+          },
+        },
+      ],
+    },
+    ListHabits: {
+      handler: 'src/handlers/listHabits.handler',
+      environment: {
+        SecretKeySignPath,
+        GroupsUsersTableName,
+        HabitsTableName,
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      iamRoleStatements: [
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:GetItem'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${GroupsUsersTableName}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dynamodb:Query'],
+          Resource: `arn:aws:dynamodb:\${self:provider.region}:*:table/${HabitsTableName}/groupIDIndex`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['ssm:GetParameter'],
+          Resource: `arn:aws:ssm:\${self:provider.region}:\${aws:accountId}:parameter/${SecretKeySignPath}`,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['kms:Decrypt'],
+          Resource: '*',
+          Condition: {
+            'ForAnyValue:StringEquals': {
+              'kms:ResourceAliases': 'alias/aws/ssm',
+            },
+          },
+        },
+      ],
+      events: [
+        {
+          httpApi: {
+            method: 'get',
+            path: '/v1/groups/{groupID}/habits',
+          },
+        },
+      ],
+    },
   },
   package: {individually: true},
   custom: {
@@ -658,6 +750,108 @@ const serverlessConfiguration: AWS = {
             },
             {
               AttributeName: 'userID',
+              KeyType: 'RANGE',
+            },
+          ],
+          BillingMode: 'PAY_PER_REQUEST',
+          Tags: [
+            {
+              Key: 'BackupPlan',
+              Value: 'Standard',
+            },
+          ],
+        },
+      },
+      DDBHabitsTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: HabitsTableName,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'id',
+              AttributeType: 'S',
+            },
+            {
+              AttributeName: 'groupID',
+              AttributeType: 'S',
+            },
+          ],
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: 'groupIDIndex',
+              KeySchema: [
+                {
+                  AttributeName: 'groupID',
+                  KeyType: 'HASH',
+                },
+                {
+                  AttributeName: 'id',
+                  KeyType: 'RANGE',
+                },
+              ],
+              Projection: {
+                ProjectionType: 'ALL',
+              },
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'id',
+              KeyType: 'HASH',
+            },
+          ],
+          BillingMode: 'PAY_PER_REQUEST',
+          Tags: [
+            {
+              Key: 'BackupPlan',
+              Value: 'Standard',
+            },
+          ],
+        },
+      },
+      DDBHabitInstancesTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: HabitInstancesTableName,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'id',
+              AttributeType: 'S',
+            },
+            {
+              AttributeName: 'habitID',
+              AttributeType: 'S',
+            },
+            {
+              AttributeName: 'userID',
+              AttributeType: 'S',
+            },
+          ],
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: 'habitIDIndex',
+              KeySchema: [
+                {
+                  AttributeName: 'habitID',
+                  KeyType: 'HASH',
+                },
+                {
+                  AttributeName: 'id',
+                  KeyType: 'RANGE',
+                },
+              ],
+              Projection: {
+                ProjectionType: 'ALL',
+              },
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'userID',
+              KeyType: 'HASH',
+            },
+            {
+              AttributeName: 'id',
               KeyType: 'RANGE',
             },
           ],

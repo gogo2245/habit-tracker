@@ -3,10 +3,11 @@ import {SSM} from 'aws-sdk'
 import {RefreshTokenRequest} from 'src/types/auth'
 import {validateAndRefreshTokens} from 'src/utils/token'
 import {refreshTokenRequestSchema} from 'src/validation/auth'
+import handlerMiddleware from './handlerMiddleware'
 
 const ssm = new SSM()
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   let body: RefreshTokenRequest
   try {
     body = refreshTokenRequestSchema.validateSync(event.body, {abortEarly: false})
@@ -29,4 +30,4 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     statusCode: 200,
     body: JSON.stringify({...tokens, message: 'SuccessfullyRefreshed'}),
   }
-}
+})

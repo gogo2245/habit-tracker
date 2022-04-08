@@ -3,10 +3,11 @@ import {SSM} from 'aws-sdk'
 import {checkCredentialsByEmail} from 'src/database/users'
 import {generateTokens} from 'src/utils/token'
 import {loginRequestSchema} from 'src/validation/auth'
+import handlerMiddleware from './handlerMiddleware'
 
 const ssm = new SSM()
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   let body: {email: string; password: string}
   try {
     body = loginRequestSchema.validateSync(event.body, {abortEarly: false})
@@ -34,4 +35,4 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     statusCode: 200,
     body: JSON.stringify({...tokens, message: 'LoginSuccessful'}),
   }
-}
+})

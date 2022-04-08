@@ -5,10 +5,11 @@ import {isTokenError, validateToken} from 'src/utils/token'
 import {changeUserRole, isUserGroup, isUserGroupOwner, leaveGroup} from 'src/database/groups'
 import {ManageGroupUserRequest} from 'src/types/groups'
 import {manageGroupUserRequestSchema} from 'src/validation/groups'
+import handlerMiddleware from './handlerMiddleware'
 
 const ssm = new SSM()
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const userInfo = await validateToken(event.headers, ssm)
   if (isTokenError(userInfo))
     return {
@@ -63,4 +64,4 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     }),
     statusCode: 200,
   }
-}
+})

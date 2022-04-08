@@ -23,3 +23,19 @@ export type DatabaseGroupUser = {
   userID: string
   role: GroupRole
 }
+
+export enum HabitInterval {
+  daily = 0,
+  weekly = 1,
+  monthly,
+}
+
+export type DatabaseHabit = {
+  id: string
+  groupID: string
+  name: string
+  description?: string
+  interval: HabitInterval
+  repetition: number
+  createdAt: Date
+}

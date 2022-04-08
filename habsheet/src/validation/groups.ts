@@ -30,7 +30,7 @@ export const manageGroupUserRequestSchema = yup
       .test(
         'role',
         {role: 'ValueNotAllowed'},
-        (item) => item === GroupRole.habitManager || item === GroupRole.member || item === 3,
+        (item) => item === GroupRole.habitManager || item === GroupRole.member || item === -1,
       )
       .required({role: 'IsRequired'})
       .typeError({role: 'IsRequired'}),
