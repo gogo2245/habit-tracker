@@ -1,0 +1,12 @@
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+}
+
+.error-text {
+    color: red;
+    font-weight: bolder;
+    text-align: center;
+    margin-top: 10px;
+}
