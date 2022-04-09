@@ -3,8 +3,10 @@ import {ReactElement} from 'react'
 import {useParams} from 'react-router-dom'
 import {useGetGroups} from '../../../hooks/groups'
 import {useAppSelector} from '../../../redux/store'
+import UserList from './UsersList'
 
 import style from './GroupDetail.module.css'
+import ControlPanel from './ControlPanel'
 
 const GroupDetail = (): ReactElement => {
   useGetGroups()
@@ -21,6 +23,8 @@ const GroupDetail = (): ReactElement => {
           <p>{group.description}</p>
         </>
       )}
+      <ControlPanel role={group.role} />
+      <UserList />
     </div>
   )
 }

@@ -11,3 +11,10 @@ export type Group = {
   description?: string
   role: GroupRoles
 }
+
+export type User = {
+  username: string
+  id: string
+  email: string
+  role: GroupRoles
+}

@@ -1,4 +1,4 @@
-import {Group} from './Groups'
+import {Group, User} from './Groups'
 
 export type LoginResponse = {
   accessToken: string
@@ -13,6 +13,11 @@ export type GroupResponse = {
 export type CreateGroupResponse = {
   message: string
   groupID: string
+}
+
+export type UserResponse = {
+  users: User[]
+  message: string
 }
 
 export type ApiError<T> = {

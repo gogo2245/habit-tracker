@@ -1,10 +1,12 @@
 import {configureStore} from '@reduxjs/toolkit'
 import {useSelector, useDispatch, TypedUseSelectorHook} from 'react-redux'
 import groups from './groups'
+import groupUsers from './groupUsers'
 
 const store = configureStore({
   reducer: {
     groups,
+    groupUsers,
   },
 })
 

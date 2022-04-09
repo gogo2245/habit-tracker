@@ -1,7 +1,10 @@
+import _ from 'lodash'
 import {Button} from '@mui/material'
-import {ReactElement, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
-import {createGroup} from '../../../api/groups'
+import {ReactElement, useEffect, useState} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
+import {createGroup, updateGroup} from '../../../api/groups'
+import {useGetGroups} from '../../../hooks/groups'
+import {useAppSelector} from '../../../redux/store'
 import {DataError} from '../../../types/api'
 import {isApiError, simplifyErrors} from '../../../utils/errors'
 import {onInputChange} from '../../../utils/inputs'
@@ -11,6 +14,9 @@ import styles from './NewGroup.module.css'
 
 const NewGroup = (): ReactElement => {
   const navigate = useNavigate()
+  const {groupID} = useParams()
+  const group = useAppSelector((state) => _.find(state.groups, (group) => group.id === groupID))
+  useGetGroups()
   const [name, setName] = useState<string>('')
   const [nameErrors, setNameErrors] = useState<string | undefined>()
 
@@ -18,10 +24,17 @@ const NewGroup = (): ReactElement => {
   const [descriptionErrors, setDescriptionErrors] = useState<string | undefined>()
 
   const [generalError, setGeneralError] = useState<string | undefined>()
+
+  useEffect(() => {
+    group && setName(group.name)
+    group && group.description && setDescription(group.description)
+  }, [group, setName, setDescription])
   const onLoginClick = async () => {
     try {
-      const id = await createGroup(name, description || undefined)
-      navigate(`/groups/${id}`)
+      const id = group
+        ? await updateGroup(group.id, name, description)
+        : await createGroup(name, description || undefined)
+      navigate(`/groups/${group?.id || id}`)
     } catch (e) {
       if (isApiError<DataError>(e)) {
         const data = e.response.data
@@ -55,7 +68,7 @@ const NewGroup = (): ReactElement => {
           error={!!generalError}
           onChange={onInputChange(setDescription)}
         />
-        <Button onClick={onLoginClick}>Vytvor Skupinu</Button>
+        <Button onClick={onLoginClick}>{group ? 'Uprav' : 'Vytvor Skupinu'}</Button>
       </div>
     </div>
   )

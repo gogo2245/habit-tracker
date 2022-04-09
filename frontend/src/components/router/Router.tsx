@@ -22,6 +22,7 @@ const Router = (): ReactElement => (
         <Route index element={<Groups />} />
         <Route path="groups/new" element={<NewGroup />} />
         <Route path="groups/:groupID" element={<GroupDetail />} />
+        <Route path="groups/:groupID/update" element={<NewGroup />} />
       </Route>
     </Routes>
   </BrowserRouter>
