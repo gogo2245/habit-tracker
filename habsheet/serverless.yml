@@ -1,10 +1,11 @@
 ---
 service: habsheet
-frameworkVersion: '2'
+frameworkVersion: '3'
 plugins:
 - serverless-esbuild
 - serverless-offline
 - serverless-iam-roles-per-function
+- serverless-finch
 provider:
   name: aws
   runtime: nodejs14.x
@@ -63,7 +64,6 @@ functions:
           kms:ResourceAliases: alias/aws/ssm
     events:
     - httpApi:
-        cors: true
         method: post
         path: "/v1/auth/login"
   refresh:
@@ -428,6 +428,9 @@ functions:
 package:
   individually: true
 custom:
+  client:
+    bucketName: habsheet-app
+    distributionFolder: ../frontend/build
   esbuild:
     bundle: true
     minify: true
