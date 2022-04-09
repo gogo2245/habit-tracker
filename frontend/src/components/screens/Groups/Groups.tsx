@@ -5,6 +5,7 @@ import {useAppSelector} from '../../../redux/store'
 import GroupItem from './GroupItem'
 
 import style from './Groups.module.css'
+import NewGroupItem from './NewGroupItem'
 
 const Groups = (): ReactElement => {
   useGetGroups()
@@ -14,6 +15,7 @@ const Groups = (): ReactElement => {
       {_.map(groups, (group) => (
         <GroupItem key={group.id} group={group} />
       ))}
+      <NewGroupItem />
     </div>
   )
 }

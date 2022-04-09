@@ -13,8 +13,14 @@ const GroupDetail = (): ReactElement => {
   if (!group) return <div>404</div>
   return (
     <div className={style['wrapper']}>
-      <div>Meno skupiny: {group.name}</div>
-      {group.description && <div>Stručný popis: {group.description}</div>}
+      <label>Meno skupiny:</label>
+      <p>{group.name}</p>
+      {group.description && (
+        <>
+          <label>Stručný popis:</label>
+          <p>{group.description}</p>
+        </>
+      )}
     </div>
   )
 }

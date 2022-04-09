@@ -33,8 +33,7 @@ const Login = (): ReactElement => {
         setEmailErrors(errors.email)
         setPasswordErrors(errors.password)
         setUsernameErrors(errors.username)
-        if (data.message === 'CredentialsNotCorrect') setGeneralError('Prihlasovacie údaje nie sú správne')
-        else if (!data.errorCodes) setGeneralError('Niečo nie je v poriadku. Skúste prosím neskôr.')
+        if (!data.errorCodes) setGeneralError('Niečo nie je v poriadku. Skúste prosím neskôr.')
         else setGeneralError(undefined)
       }
     }

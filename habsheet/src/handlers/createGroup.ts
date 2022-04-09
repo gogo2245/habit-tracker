@@ -31,10 +31,11 @@ export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): 
     }
   }
   const {name, description} = body
-  await createGroup(userInfo.id, name, description)
+  const groupID = await createGroup(userInfo.id, name, description)
   return {
     body: JSON.stringify({
       message: 'GroupCreated',
+      groupID,
     }),
     statusCode: 200,
   }

@@ -10,6 +10,11 @@ export type GroupResponse = {
   message: string
 }
 
+export type CreateGroupResponse = {
+  message: string
+  groupID: string
+}
+
 export type ApiError<T> = {
   response: {
     data: T

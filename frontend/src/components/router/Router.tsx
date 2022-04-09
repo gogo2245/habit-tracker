@@ -5,6 +5,7 @@ import Menu from '../Menu/Menu'
 import Login from '../screens/Login/Login'
 import Register from '../screens/Register/Register'
 import GroupDetail from '../screens/GroupDetail/GroupDetail'
+import NewGroup from '../screens/NewGroup/NewGroup'
 
 type LoginOrChildrenProps = {
   children: ReactElement
@@ -19,6 +20,7 @@ const Router = (): ReactElement => (
       <Route path="/register" element={<Register />} />
       <Route path="/" element={<LoginOrChildren children={<Menu />} />}>
         <Route index element={<Groups />} />
+        <Route path="groups/new" element={<NewGroup />} />
         <Route path="groups/:groupID" element={<GroupDetail />} />
       </Route>
     </Routes>

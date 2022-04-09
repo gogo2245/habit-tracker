@@ -5,7 +5,7 @@ import * as uuid from 'uuid'
 
 const ddb = new DynamoDB.DocumentClient()
 
-export const createGroup = async (userID: string, name: string, description: string): Promise<void> => {
+export const createGroup = async (userID: string, name: string, description: string): Promise<string> => {
   const groupID = uuid.v4()
   await ddb
     .put({
@@ -27,6 +27,7 @@ export const createGroup = async (userID: string, name: string, description: str
       },
     })
     .promise()
+  return groupID
 }
 
 export const listGroupsByUserID = async (userID: string): Promise<(DatabaseGroup & {role: GroupRole})[]> => {
