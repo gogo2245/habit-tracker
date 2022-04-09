@@ -1,15 +1,20 @@
-import {Tab, Tabs} from '@mui/material'
+import _ from 'lodash'
 import {ReactElement} from 'react'
+import {useGetGroups} from '../../../hooks/groups'
+import {useAppSelector} from '../../../redux/store'
+import GroupItem from './GroupItem'
 
-import {logout} from '../../../api/auth'
+import style from './Groups.module.css'
 
 const Groups = (): ReactElement => {
+  useGetGroups()
+  const groups = useAppSelector((state) => state.groups)
   return (
-    <Tabs value="0">
-      <Tab label="Skupiny" value="0" />
-      <Tab label="Moje aktivity" value="1" />
-      <Tab label="Odhlásenie" value="2" onClick={() => logout()} />
-    </Tabs>
+    <div className={style['list']}>
+      {_.map(groups, (group) => (
+        <GroupItem key={group.id} group={group} />
+      ))}
+    </div>
   )
 }
 

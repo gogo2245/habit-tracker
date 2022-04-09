@@ -46,20 +46,20 @@ type Options = {
 }
 
 const api = {
-  get: <T>(path: string, options: Options = {}): Promise<T> =>
+  get: <T>(path: string, options: Options = {}): Promise<{data: T}> =>
     apiInstance.get(buildPathAndQuery(path, options.query), {
       headers: options.headers || {},
       params: options.params || {},
     }),
-  post: <T>(path: string, data?: unknown, options: Options = {}): Promise<T> =>
+  post: <T>(path: string, data?: unknown, options: Options = {}): Promise<{data: T}> =>
     apiInstance.post(buildPathAndQuery(path, options.query), data, {
       headers: options.headers || {},
     }),
-  delete: <T>(path: string, options: Options = {}): Promise<T> =>
+  delete: <T>(path: string, options: Options = {}): Promise<{data: T}> =>
     apiInstance.delete(buildPathAndQuery(path, options.query), {
       headers: options.headers || {},
     }),
-  put: <T>(path: string, data?: unknown, options: Options = {}): Promise<T> =>
+  put: <T>(path: string, data?: unknown, options: Options = {}): Promise<{data: T}> =>
     apiInstance.patch(buildPathAndQuery(path, options.query), data, {
       headers: options.headers || {},
     }),

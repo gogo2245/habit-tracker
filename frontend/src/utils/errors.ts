@@ -15,6 +15,14 @@ export const translateError = (error: string): string => {
   switch (error) {
     case 'IsRequired':
       return 'Tento vstup musí byť vyplnený'
+    case 'MustBeEmail':
+      return 'Tento vstup musí byť email'
+    case 'NotValid':
+      return 'Heslo musí obsahovať aspoň 8 znakov, veľké písmená, malé pismená, číslo a špeciálny znak'
+    case 'IsTooShort':
+      return 'Tento vstup musí obsahovať aspoň 4 znaky'
+    case 'AlreadyUsed':
+      return 'Tento email sa už používa'
     default:
       return 'S týmto vstupom niečo nie je v poriadku'
   }

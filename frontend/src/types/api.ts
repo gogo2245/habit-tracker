@@ -1,6 +1,13 @@
+import {Group} from './Groups'
+
 export type LoginResponse = {
   accessToken: string
   refreshToken: string
+}
+
+export type GroupResponse = {
+  groups: Group[]
+  message: string
 }
 
 export type ApiError<T> = {

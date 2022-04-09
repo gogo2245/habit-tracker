@@ -1,7 +1,10 @@
 import {ReactElement} from 'react'
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import Groups from '../screens/Groups/Groups'
+import Menu from '../Menu/Menu'
 import Login from '../screens/Login/Login'
+import Register from '../screens/Register/Register'
+import GroupDetail from '../screens/GroupDetail/GroupDetail'
 
 type LoginOrChildrenProps = {
   children: ReactElement
@@ -13,7 +16,11 @@ const LoginOrChildren = ({children}: LoginOrChildrenProps) =>
 const Router = (): ReactElement => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<LoginOrChildren children={<Groups />} />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<LoginOrChildren children={<Menu />} />}>
+        <Route index element={<Groups />} />
+        <Route path="groups/:groupID" element={<GroupDetail />} />
+      </Route>
     </Routes>
   </BrowserRouter>
 )
