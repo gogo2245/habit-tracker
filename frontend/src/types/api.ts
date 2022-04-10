@@ -1,4 +1,5 @@
 import {Group, User} from './Groups'
+import {Habit} from './habits'
 
 export type LoginResponse = {
   accessToken: string
@@ -18,6 +19,11 @@ export type CreateGroupResponse = {
 export type CreateHabitResponse = {
   message: string
   habitID: string
+}
+
+export type HabitResponse = {
+  habits: Habit[]
+  message: string
 }
 
 export type UserResponse = {

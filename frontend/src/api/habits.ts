@@ -1,5 +1,5 @@
-import {CreateHabitResponse} from '../types/api'
-import {HabitInterval} from '../types/habits'
+import {CreateHabitResponse, HabitResponse} from '../types/api'
+import {Habit, HabitInterval} from '../types/habits'
 import api from './api'
 
 export const createHabit = async (
@@ -16,4 +16,9 @@ export const createHabit = async (
     interval,
   })
   return response.data.habitID
+}
+
+export const getGroupHabits = async (groupID: string): Promise<Habit[]> => {
+  const response = await api.get<HabitResponse>(`/v1/groups/${groupID}/habits`)
+  return response.data.habits
 }

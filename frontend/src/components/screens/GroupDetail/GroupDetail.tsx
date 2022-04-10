@@ -4,6 +4,7 @@ import {useParams} from 'react-router-dom'
 import {useGetGroups} from '../../../hooks/groups'
 import {useAppSelector} from '../../../redux/store'
 import UserList from './UsersList'
+import HabitList from './HabitList'
 
 import style from './GroupDetail.module.css'
 import ControlPanel from './ControlPanel'
@@ -25,6 +26,7 @@ const GroupDetail = (): ReactElement => {
       )}
       <ControlPanel role={group.role} />
       <UserList />
+      <HabitList />
     </div>
   )
 }

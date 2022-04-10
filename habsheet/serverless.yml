@@ -438,7 +438,7 @@ functions:
     - Effect: Allow
       Action:
       - dynamodb:Query
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/habsheet-habits/groupIDIndex
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/habsheet-habits/index/groupIDIndex
     - Effect: Allow
       Action:
       - ssm:GetParameter
