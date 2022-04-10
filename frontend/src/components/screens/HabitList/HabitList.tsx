@@ -9,7 +9,9 @@ import style from './HabitList.module.css'
 
 const Groups = (): ReactElement => {
   useHabits()
-  const habits = useAppSelector((state) => state.habits)
+  const habits = useAppSelector((state) =>
+    _.sortBy(state.habits, (habit) => [habit.interval, habit.name.toLowerCase()]),
+  )
   return (
     <div className={style['list']}>
       <TableContainer>
