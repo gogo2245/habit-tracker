@@ -5,10 +5,12 @@ import * as uuid from 'uuid'
 
 const ddb = new DynamoDB.DocumentClient()
 
-export const addHabit = async (habit: Omit<DatabaseHabit, 'id' | 'createdAt'>): Promise<void> => {
+export const addHabit = async (habit: Omit<DatabaseHabit, 'id' | 'createdAt'>): Promise<string> => {
+  const id = uuid.v4()
   await ddb
-    .put({TableName: process.env.HabitsTableName, Item: {...habit, id: uuid.v4(), createdAt: new Date().toISOString()}})
+    .put({TableName: process.env.HabitsTableName, Item: {...habit, id, createdAt: new Date().toISOString()}})
     .promise()
+  return id
 }
 
 export const listHabits = async (groupID: string): Promise<DatabaseHabit[]> =>

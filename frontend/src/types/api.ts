@@ -15,6 +15,11 @@ export type CreateGroupResponse = {
   groupID: string
 }
 
+export type CreateHabitResponse = {
+  message: string
+  habitID: string
+}
+
 export type UserResponse = {
   users: User[]
   message: string

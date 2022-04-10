@@ -6,6 +6,7 @@ import Login from '../screens/Login/Login'
 import Register from '../screens/Register/Register'
 import GroupDetail from '../screens/GroupDetail/GroupDetail'
 import NewGroup from '../screens/NewGroup/NewGroup'
+import CreateHabit from '../screens/CreateHabit/CreateHabit'
 
 type LoginOrChildrenProps = {
   children: ReactElement
@@ -23,6 +24,7 @@ const Router = (): ReactElement => (
         <Route path="groups/new" element={<NewGroup />} />
         <Route path="groups/:groupID" element={<GroupDetail />} />
         <Route path="groups/:groupID/update" element={<NewGroup />} />
+        <Route path="groups/:groupID/habit/create" element={<CreateHabit />} />
       </Route>
     </Routes>
   </BrowserRouter>

@@ -40,10 +40,11 @@ export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): 
       }),
       statusCode: 403,
     }
-  await addHabit({...body, groupID})
+  const habitID = await addHabit({...body, groupID})
   return {
     body: JSON.stringify({
       message: 'HabitAdded',
+      habitID,
     }),
     statusCode: 200,
   }

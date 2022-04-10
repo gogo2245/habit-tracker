@@ -53,7 +53,9 @@ const ControlPanel = ({role}: ControlPanelProps): ReactElement => {
         <Button onClick={() => navigate(`/groups/${groupID}/update`)}>Upraviť skupinu</Button>
       )}
       {role === GroupRoles.owner && <Button onClick={() => setRemoveGroupOpen(true)}>Zmazať skupinu</Button>}
-      {role >= GroupRoles.habitManager && <Button>Pridať Aktivitu</Button>}
+      {role >= GroupRoles.habitManager && (
+        <Button onClick={() => navigate(`/groups/${groupID}/habit/create`)}>Pridať Aktivitu</Button>
+      )}
       {role < GroupRoles.owner && <Button onClick={onLeaveGroup}>Opustiť skupinu</Button>}
       <Dialog
         open={removeGroupOpen}
