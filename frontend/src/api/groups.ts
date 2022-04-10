@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import {CreateGroupResponse, GroupResponse, UserResponse} from '../types/api'
 import {Group, User} from '../types/Groups'
 import api from './api'
@@ -19,8 +18,8 @@ export const deleteGroup = async (groupID: string): Promise<void> => {
 
 // TODO
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const updateGroup = async (groupID: string, name?: string, description?: string): Promise<void> => {
-  _.noop()
+export const updateGroup = async (groupID: string, name: string, description?: string): Promise<void> => {
+  await api.put(`/v1/groups/${groupID}`, {name, description})
 }
 
 export const getGroupUsers = async (groupID: string): Promise<User[]> => {

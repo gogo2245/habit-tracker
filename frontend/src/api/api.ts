@@ -60,7 +60,7 @@ const api = {
       headers: options.headers || {},
     }),
   put: <T>(path: string, data?: unknown, options: Options = {}): Promise<{data: T}> =>
-    apiInstance.patch(buildPathAndQuery(path, options.query), data, {
+    apiInstance.put(buildPathAndQuery(path, options.query), data, {
       headers: options.headers || {},
     }),
   // TODO add other methods
