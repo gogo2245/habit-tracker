@@ -26,3 +26,15 @@ export const getGroupUsers = async (groupID: string): Promise<User[]> => {
   const response = await api.get<UserResponse>(`/v1/groups/${groupID}/users`)
   return response.data.users
 }
+
+export const inviteUser = async (groupID: string, email: string): Promise<void> => {
+  await api.post(`/v1/groups/invite`, {groupID, email})
+}
+
+export const acceptInvitation = async (groupID: string): Promise<void> => {
+  await api.post(`/v1/groups/${groupID}/invite/accept`)
+}
+
+export const leaveGroup = async (groupID: string): Promise<void> => {
+  await api.post(`/v1/groups/${groupID}/leave`)
+}

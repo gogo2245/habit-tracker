@@ -4,7 +4,7 @@ import {setGroups} from '../redux/groups'
 import {setGroupUsers} from '../redux/groupUsers'
 import {useAppDispatch} from '../redux/store'
 
-export const useGetGroups = (): void => {
+export const useGetGroups = (forceReload?: unknown): void => {
   const dispatch = useAppDispatch()
   useEffect(() => {
     const func = async () => {
@@ -12,7 +12,7 @@ export const useGetGroups = (): void => {
       dispatch(setGroups(groups))
     }
     func()
-  }, [dispatch])
+  }, [dispatch, forceReload])
 }
 
 export const useGroupUsers = (groupID: string): void => {

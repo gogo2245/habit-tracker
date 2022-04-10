@@ -9,7 +9,6 @@
     height: 150px;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
      -khtml-user-select: none; /* Konqueror HTML */
@@ -18,8 +17,9 @@
             user-select: none;
 }
 
-.group-item:hover {
+.group-item-clickable:hover {
     opacity: 0.8;
+    cursor: pointer;
     background-color: rgba(25, 118, 210, 0.2);
 }
 
@@ -33,4 +33,14 @@
     font-size: 15px;
     color: gray;
     text-align: center;
+}
+
+.clickable-icon {
+    margin: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.clickable-icon:hover {
+    opacity: 0.8;
 }

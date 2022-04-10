@@ -6,7 +6,7 @@ import style from './GroupItem.module.css'
 const NewGroupItem = (): ReactElement => {
   const navigate = useNavigate()
   return (
-    <div className={style['group-item']} onClick={() => navigate('/groups/new')}>
+    <div className={`${style['group-item']} ${style['group-item-clickable']}`} onClick={() => navigate('/groups/new')}>
       <div className={style['group-heading']}>Nová skupina</div>
     </div>
   )

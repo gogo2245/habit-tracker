@@ -23,6 +23,10 @@ export const translateError = (error: string): string => {
       return 'Tento vstup musí obsahovať aspoň 4 znaky'
     case 'AlreadyUsed':
       return 'Tento email sa už používa'
+    case 'AlreadyMember':
+      return 'Tento užívateľ už je člen skupiny alebo pozvaný'
+    case 'DoesNotExist':
+      return 'Tento užívateľ nemá vytvorený profil'
     default:
       return 'S týmto vstupom niečo nie je v poriadku'
   }

@@ -7,31 +7,29 @@ import handlerMiddleware from './handlerMiddleware'
 
 const ssm = new SSM()
 
-export const acceptInvitation = handlerMiddleware(
-  async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-    const userInfo = await validateToken(event.headers, ssm)
-    if (isTokenError(userInfo))
-      return {
-        body: JSON.stringify({
-          message: userInfo.errorMessage,
-        }),
-        statusCode: 401,
-      }
-    const {groupID} = event.pathParameters
-    if (!(await isUserGroupInvited(userInfo.id, groupID)))
-      return {
-        body: JSON.stringify({
-          message: 'ValidationError',
-          errorCodes: [{groupID: 'UserIsNotInvitedToThisGroup'}],
-        }),
-        statusCode: 400,
-      }
-    await acceptInvitationToGroup(userInfo.id, groupID)
+export const handler = handlerMiddleware(async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+  const userInfo = await validateToken(event.headers, ssm)
+  if (isTokenError(userInfo))
     return {
       body: JSON.stringify({
-        message: 'InvitationAccepted',
+        message: userInfo.errorMessage,
       }),
-      statusCode: 200,
+      statusCode: 401,
     }
-  },
-)
+  const {groupID} = event.pathParameters
+  if (!(await isUserGroupInvited(userInfo.id, groupID)))
+    return {
+      body: JSON.stringify({
+        message: 'ValidationError',
+        errorCodes: [{groupID: 'UserIsNotInvitedToThisGroup'}],
+      }),
+      statusCode: 400,
+    }
+  await acceptInvitationToGroup(userInfo.id, groupID)
+  return {
+    body: JSON.stringify({
+      message: 'InvitationAccepted',
+    }),
+    statusCode: 200,
+  }
+})
