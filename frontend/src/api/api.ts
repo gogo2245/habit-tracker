@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import _ from 'lodash'
 import axios, {AxiosRequestHeaders} from 'axios'
 
 const REQUEST_TIMEOUT = 15 * 1000
@@ -31,9 +31,30 @@ apiInstance.interceptors.request.use((config) => {
   return config
 })
 
-apiInstance.interceptors.response.use(_.identity, (error) => {
-  // TODO add refresh logic here
-  throw error
+const refreshAccessToken = async () => {
+  const response = await apiInstance.post(buildPathAndQuery('/v1/auth/refresh'), {
+    refreshToken: localStorage.getItem('refreshToken'),
+  })
+  const refreshToken = response.data.refreshToken
+  const accessToken = response.data.accessToken
+  localStorage.setItem('refreshToken', refreshToken)
+  localStorage.setItem('accessToken', accessToken)
+  return accessToken
+}
+
+apiInstance.interceptors.response.use(_.identity, async (error) => {
+  const originalRequest = error.config
+  if (originalRequest._retry) {
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('accessToken')
+  }
+  if (error.response.status === 401 && !originalRequest._retry) {
+    originalRequest._retry = true
+    const accessToken = await refreshAccessToken()
+    originalRequest.headers['Authorization'] = 'Bearer ' + accessToken
+    return apiInstance(originalRequest)
+  }
+  return Promise.reject(error)
 })
 
 export const buildPathAndQuery = (path: string, query?: unknown): string =>
