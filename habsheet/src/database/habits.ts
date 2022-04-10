@@ -2,6 +2,7 @@ import {DynamoDB} from 'aws-sdk'
 import * as _ from 'lodash'
 import {DatabaseHabit} from 'src/types/database'
 import * as uuid from 'uuid'
+import {listGroupsByUserID} from './groups'
 
 const ddb = new DynamoDB.DocumentClient()
 
@@ -27,3 +28,9 @@ export const listHabits = async (groupID: string): Promise<DatabaseHabit[]> =>
     ).Items,
     (item: DatabaseHabit) => ({...item, createdAt: new Date(item.createdAt)}),
   )
+
+export const listAllHabits = async (userID: string): Promise<DatabaseHabit[]> => {
+  const groups = await listGroupsByUserID(userID)
+  const habits = await Promise.all(_.map(groups, ({id}) => listHabits(id)))
+  return _.flatten(habits)
+}

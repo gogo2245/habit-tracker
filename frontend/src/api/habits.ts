@@ -22,3 +22,8 @@ export const getGroupHabits = async (groupID: string): Promise<Habit[]> => {
   const response = await api.get<HabitResponse>(`/v1/groups/${groupID}/habits`)
   return response.data.habits
 }
+
+export const getHabits = async (): Promise<Habit[]> => {
+  const response = await api.get<HabitResponse>(`/v1/habits`)
+  return response.data.habits
+}

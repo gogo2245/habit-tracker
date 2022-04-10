@@ -3,12 +3,14 @@ import {useSelector, useDispatch, TypedUseSelectorHook} from 'react-redux'
 import groups from './groups'
 import groupUsers from './groupUsers'
 import groupHabits from './groupHabits'
+import habits from './habits'
 
 const store = configureStore({
   reducer: {
     groups,
     groupUsers,
     groupHabits,
+    habits,
   },
 })
 
