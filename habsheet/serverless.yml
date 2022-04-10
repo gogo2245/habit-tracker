@@ -5,7 +5,6 @@ plugins:
 - serverless-esbuild
 - serverless-offline
 - serverless-iam-roles-per-function
-- serverless-finch
 provider:
   name: aws
   runtime: nodejs14.x
@@ -151,6 +150,36 @@ functions:
     - httpApi:
         method: post
         path: "/v1/groups/create"
+  updateGroup:
+    handler: src/handlers/updateGroup.handler
+    environment:
+      SecretKeySignPath: login-private-key
+      GroupsTableName: habsheet-groups
+      GroupsUsersTableName: habsheet-groups-users
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - dynamodb:UpdateItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/habsheet-groups
+    - Effect: Allow
+      Action:
+      - dynamodb:GetItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/habsheet-groups-users
+    - Effect: Allow
+      Action:
+      - ssm:GetParameter
+      Resource: arn:aws:ssm:${self:provider.region}:${aws:accountId}:parameter/login-private-key
+    - Effect: Allow
+      Action:
+      - kms:Decrypt
+      Resource: "*"
+      Condition:
+        ForAnyValue:StringEquals:
+          kms:ResourceAliases: alias/aws/ssm
+    events:
+    - httpApi:
+        method: put
+        path: "/v1/groups/{groupID}"
   listGroups:
     handler: src/handlers/listGroups.handler
     environment:
@@ -428,9 +457,6 @@ functions:
 package:
   individually: true
 custom:
-  client:
-    bucketName: habsheet.eu
-    distributionFolder: ../frontend/build
   esbuild:
     bundle: true
     minify: true

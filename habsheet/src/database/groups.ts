@@ -168,3 +168,15 @@ export const deleteGroup = async (groupID: string): Promise<void> => {
   }
   await ddb.delete({Key: {id: groupID}, TableName: process.env.GroupsTableName}).promise()
 }
+
+export const updateGroup = async (groupID: string, name: string, description?: string): Promise<void> => {
+  await ddb
+    .update({
+      TableName: process.env.GroupsTableName,
+      Key: {id: groupID},
+      UpdateExpression: `set #nm = :name, description = :description`,
+      ExpressionAttributeNames: {'#nm': 'name'},
+      ExpressionAttributeValues: {':name': name, ':description': description},
+    })
+    .promise()
+}

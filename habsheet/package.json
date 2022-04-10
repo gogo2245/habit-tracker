@@ -24,7 +24,6 @@
     "prettier": "^2.2.1",
     "serverless": "^3.12.0",
     "serverless-esbuild": "^1.23.3",
-    "serverless-finch": "^4.0.0",
     "serverless-iam-roles-per-function": "^3.2.0",
     "serverless-offline": "^6.8.0",
     "serverless-plugin-typescript": "^1.1.9",
