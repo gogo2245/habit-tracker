@@ -101,6 +101,7 @@ export const inviteMemberToGroup = async (userID: string, groupID: string): Prom
 
 export const listUsersByGroupID = async (
   groupID: string,
+  allUsers?: boolean,
 ): Promise<(Omit<DatabaseUser, 'password'> & {role: GroupRole})[]> => {
   const {Items: users} = await ddb
     .query({
@@ -113,7 +114,7 @@ export const listUsersByGroupID = async (
     .promise()
   const databaseUsers = await Promise.all(
     _.map(users, async ({userID, role}: DatabaseGroupUser) =>
-      role !== GroupRole.invited
+      role !== GroupRole.invited || allUsers
         ? {
             ...((
               await ddb
@@ -161,8 +162,18 @@ export const leaveGroup = async (userID: string, groupID: string): Promise<void>
 }
 
 export const deleteGroup = async (groupID: string): Promise<void> => {
-  // TODO remove all habits from group
-  const users = await listUsersByGroupID(groupID)
+  const {Items: habits} = await ddb
+    .query({
+      TableName: process.env.HabitsTableName,
+      IndexName: 'groupIDIndex',
+      KeyConditionExpression: 'groupID=:groupID',
+      ExpressionAttributeValues: {':groupID': groupID},
+    })
+    .promise()
+  for (const habit of habits) {
+    await ddb.delete({TableName: process.env.HabitsTableName, Key: {id: habit.id}}).promise()
+  }
+  const users = await listUsersByGroupID(groupID, true)
   for (const user of users) {
     await leaveGroup(user.id, groupID)
   }

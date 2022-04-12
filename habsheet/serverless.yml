@@ -364,6 +364,7 @@ functions:
       GroupsUsersTableName: habsheet-groups-users
       UsersTableName: habsheet-users
       GroupsTableName: habsheet-groups
+      HabitsTableName: habsheet-habits
     iamRoleStatements:
     - Effect: Allow
       Action:
@@ -371,6 +372,14 @@ functions:
       - dynamodb:GetItem
       - dynamodb:DeleteItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/habsheet-groups-users
+    - Effect: Allow
+      Action:
+      - dynamodb:Query
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/habsheet-habits/index/groupIDIndex
+    - Effect: Allow
+      Action:
+      - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/habsheet-habits
     - Effect: Allow
       Action:
       - dynamodb:GetItem
