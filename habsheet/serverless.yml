@@ -15,7 +15,6 @@ provider:
   versionFunctions: false
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
-  lambdaHashingVersion: '20201221'
   httpApi:
     cors: true
 functions:
@@ -616,8 +615,8 @@ resources:
       Properties:
         TableName: habsheet-habit-instances
         AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
+        - AttributeName: date
+          AttributeType: N
         - AttributeName: habitID
           AttributeType: S
         - AttributeName: userID
@@ -627,14 +626,14 @@ resources:
           KeySchema:
           - AttributeName: habitID
             KeyType: HASH
-          - AttributeName: id
+          - AttributeName: date
             KeyType: RANGE
           Projection:
             ProjectionType: ALL
         KeySchema:
         - AttributeName: userID
           KeyType: HASH
-        - AttributeName: id
+        - AttributeName: date
           KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         Tags:
