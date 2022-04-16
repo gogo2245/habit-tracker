@@ -5,10 +5,12 @@ plugins:
 - serverless-esbuild
 - serverless-offline
 - serverless-iam-roles-per-function
+- serverless-domain-manager
 provider:
   name: aws
   runtime: nodejs14.x
   region: eu-central-1
+  stage: dev
   logRetentionInDays: 30
   versionFunctions: false
   environment:
@@ -501,6 +503,13 @@ functions:
 package:
   individually: true
 custom:
+  customDomain:
+    domainName: api.habsheet.link
+    stage: dev
+    endpointType: regional
+    createRoute53Record: true
+    securityPolicy: tls_1_2
+    apiType: http
   esbuild:
     bundle: true
     minify: true

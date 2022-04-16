@@ -12,7 +12,8 @@ export const register = async (email: string, username: string, password: string
   await api.post('/v1/auth/register', {email, password, username})
 }
 
-export const logout = (): void => {
+export const logout = (navigate?: (path: string) => void): void => {
+  navigate && navigate('/')
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
   location.reload()
