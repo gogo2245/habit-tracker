@@ -1,3 +1,5 @@
+import {ThemeProvider} from '@emotion/react'
+import {createTheme} from '@mui/material'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {Provider} from 'react-redux'
@@ -6,10 +8,22 @@ import './index.css'
 import store from './redux/store'
 import reportWebVitals from './reportWebVitals'
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: '#B1D0E0',
+      main: '#406882',
+      dark: '#1A374D',
+    },
+  },
+})
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <Router />
+      <ThemeProvider theme={theme}>
+        <Router />
+      </ThemeProvider>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root'),

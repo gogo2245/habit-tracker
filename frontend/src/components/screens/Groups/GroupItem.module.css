@@ -3,7 +3,7 @@
     flex-direction: column;
     padding: 20px;
     margin: 15px;
-    border: 2px solid #1976d2;
+    border: 2px solid #406882;
     border-radius: 5px;
     width: 150px;
     height: 150px;
@@ -20,18 +20,18 @@
 .group-item-clickable:hover {
     opacity: 0.8;
     cursor: pointer;
-    background-color: rgba(25, 118, 210, 0.2);
+    background-color: rgba(64, 104, 130, 0.2);
 }
 
 .group-heading {
     font-size: 20px;
-    color: #1976d2;
+    color: #406882;
     text-align: center;
 }
 
 .group-description {
     font-size: 15px;
-    color: gray;
+    color: #B1D0E0;
     text-align: center;
 }
 
